@@ -1,5 +1,7 @@
 #define  _XOPEN_SOURCE 500	/* needed for nftw() */
-#define  _GNU_SOURCE		/* needed for asprintf() */
+#define __BSD_VISIBLE 1	/* needed for asprintf() */
+#define __ISO_C_VISIBLE 2011 /* should make snprintf visible */
+
 
 /* Parse event JSON files */
 
@@ -31,6 +33,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+
+#include <sys/stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -45,10 +49,14 @@
 #include <sys/resource.h>		/* getrlimit */
 #include <ftw.h>
 #include <sys/stat.h>
-#include <linux/list.h>
+#include "list.h"
 #include "jsmn.h"
 #include "json.h"
 #include "jevents.h"
+
+int	 snprintf(char * __restrict, size_t, const char * __restrict,
+	    ...) __printflike(3, 4);
+_Noreturn void	 _Exit(int);
 
 int verbose;
 char *prog;
@@ -412,7 +420,6 @@ static int save_arch_std_events(void *data, char *name, char *event,
 				char *metric_name, char *metric_group)
 {
 	struct event_struct *es;
-	struct stat *sb = data;
 
 	es = malloc(sizeof(*es));
 	if (!es)
